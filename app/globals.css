@@ -1,11 +1,11 @@
 :root {
-  /* Surfaces & text */
-  --color-bg: #f3f2f2;
-  --color-surface: #eae9e9;
+  /* Surfaces & text - warm cream, not gray */
+  --color-bg: #faf6f0;
+  --color-surface: #ffffff;
   --color-text: #201e1d;
-  --color-divider: rgba(32, 30, 29, 0.12);
+  --color-divider: rgba(32, 30, 29, 0.1);
 
-  /* Accent - cyan (good / featured) */
+  /* Accent - cyan (legacy / links) */
   --color-accent: #0088b0;
   --color-accent-100: #e9f8ff;
   --color-accent-200: #cbeeff;
@@ -14,23 +14,44 @@
   --color-accent-800: #004961;
   --color-accent-900: #0a303e;
 
-  /* Accent 2 - magenta (needs attention) */
+  /* Accent 2 - magenta (reserved for real failures only) */
   --color-accent-2: #d6006c;
   --color-accent-2-100: #fff1f4;
   --color-accent-2-200: #ffdee6;
   --color-accent-2-700: #aa0b56;
   --color-accent-2-800: #790e3d;
 
-  /* Neutral ramp */
-  --color-neutral-100: #f8f4f4;
-  --color-neutral-200: #eae7e7;
-  --color-neutral-300: #d7d3d3;
-  --color-neutral-400: #bab6b6;
-  --color-neutral-500: #9b9797;
-  --color-neutral-600: #7d7979;
-  --color-neutral-700: #605d5d;
-  --color-neutral-800: #444141;
-  --color-neutral-900: #2d2b2b;
+  /* Neutral ramp (warmed slightly to match the cream bg) */
+  --color-neutral-100: #f7f4ef;
+  --color-neutral-200: #ece7de;
+  --color-neutral-300: #d9d3c7;
+  --color-neutral-400: #bcb4a5;
+  --color-neutral-500: #9c9384;
+  --color-neutral-600: #7d7568;
+  --color-neutral-700: #5f584d;
+  --color-neutral-800: #443f37;
+  --color-neutral-900: #2d2a24;
+
+  /* Track colors - which of Nick's two searches a job belongs to */
+  --track-ai: #4f46e5;
+  --track-ai-100: #eef2ff;
+  --track-ai-700: #4338ca;
+  --track-corp: #c2620a;
+  --track-corp-100: #fdf1e7;
+  --track-corp-700: #9a4d08;
+
+  /* Score bands */
+  --score-hi: #2d6b37;
+  --score-hi-bg: #e3f2e6;
+  --score-mid: #8a5a09;
+  --score-mid-bg: #fdf1dc;
+
+  /* Action colors */
+  --action-watch: #8a5a09;
+  --action-watch-bg: #fdf1dc;
+  --action-watch-border: #e0b872;
+  --action-mute: #8a3b2a;
+  --action-mute-border: #d9b6ac;
 
   /* Typography */
   --font-heading: 'Source Serif 4', Georgia, serif;
@@ -45,11 +66,68 @@
   --space-6: 40px;
 
   /* Radius */
-  --radius-sm: 1px;
-  --radius-md: 2px;
+  --radius-sm: 2px;
+  --radius-md: 3px;
 
   /* Shadow */
-  --shadow-sm: 0 1px 2px rgba(45, 43, 43, 0.14);
+  --shadow-sm: 0 1px 2px rgba(45, 43, 43, 0.1);
+}
+
+/* Dark mode - same warm/editorial character, ramps reversed for a dark bg.
+   Set by the inline script in layout.js (checks localStorage, falls back to
+   prefers-color-scheme) before first paint, so there's no flash of the
+   wrong theme. */
+[data-theme="dark"] {
+  --color-bg: #1c1a17;
+  --color-surface: #27231f;
+  --color-text: #f0ece4;
+  --color-divider: rgba(240, 236, 228, 0.12);
+
+  --color-accent: #3fc3ea;
+  --color-accent-100: #123039;
+  --color-accent-200: #164256;
+  --color-accent-300: #1c5872;
+  --color-accent-700: #7fdcf5;
+  --color-accent-800: #a8e8fa;
+  --color-accent-900: #d3f4fc;
+
+  --color-accent-2: #ff5c9e;
+  --color-accent-2-100: #3a1220;
+  --color-accent-2-200: #4d1729;
+  --color-accent-2-700: #ff9dc4;
+  --color-accent-2-800: #ffc2dc;
+
+  /* Ramp direction flips: 100 was the lightest bg tint, now it's the
+     darkest; 900 was near-black text, now near-white. */
+  --color-neutral-100: #242019;
+  --color-neutral-200: #322d24;
+  --color-neutral-300: #464034;
+  --color-neutral-400: #5c5446;
+  --color-neutral-500: #766c5a;
+  --color-neutral-600: #9c9280;
+  --color-neutral-700: #bbb2a0;
+  --color-neutral-800: #d9d2c4;
+  --color-neutral-900: #f0ece4;
+
+  --track-ai: #8b85f0;
+  --track-ai-100: #211f3d;
+  --track-ai-700: #b3aefa;
+  --track-corp: #f0a84a;
+  --track-corp-100: #3a2611;
+  --track-corp-700: #f7c581;
+
+  --score-hi: #7bd88f;
+  --score-hi-bg: #163420;
+  --score-mid: #f0b854;
+  --score-mid-bg: #3a2a0c;
+
+  --action-watch: #f0c674;
+  --action-watch-bg: #3a2c0c;
+  --action-watch-border: #6b5220;
+  --action-mute: #e28a72;
+  --action-mute-border: #6b3d2c;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 * { box-sizing: border-box; }
@@ -79,11 +157,28 @@ header.top h1 {
 }
 header.top .sub { color: var(--color-neutral-600); font-size: 13px; }
 
-.stats { display: flex; gap: var(--space-2); flex-wrap: wrap; margin: var(--space-4) 0 var(--space-5); }
+.btn {
+  font-family: var(--font-body); font-weight: 600; cursor: pointer;
+  border-radius: var(--radius-sm); border: 1px solid transparent;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.btn:disabled { cursor: default; opacity: 0.7; }
+.btn-secondary {
+  background: var(--color-surface); color: var(--color-text);
+  border-color: var(--color-neutral-300); box-shadow: var(--shadow-sm);
+}
+.btn-secondary:hover:not(:disabled) { background: var(--color-neutral-100); }
+
+.byline {
+  color: var(--color-neutral-500); font-size: 12px;
+  margin: 2px 0 var(--space-4);
+}
+
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-2); margin: var(--space-4) 0 var(--space-5); }
 .stat {
   background: var(--color-surface); border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
-  padding: var(--space-3) var(--space-4); min-width: 130px;
+  padding: var(--space-3) var(--space-4);
 }
 .stat .n {
   font-family: var(--font-heading); font-weight: 600;
@@ -105,14 +200,20 @@ h2.section {
   box-shadow: var(--shadow-sm);
   padding: var(--space-3) var(--space-4); margin-bottom: var(--space-2);
   display: flex; gap: var(--space-3); align-items: flex-start;
+  border-left: 4px solid transparent;
 }
+.job.track-ai { border-left-color: var(--track-ai); }
+.job.track-corp { border-left-color: var(--track-corp); }
 .job .body { flex: 1; min-width: 0; }
 .job .title {
   font-family: var(--font-heading); font-weight: 600;
   font-size: 16px; margin-bottom: 3px;
 }
 .job .meta { color: var(--color-neutral-600); font-size: 13px; }
-.job .tags { margin-top: var(--space-2); display: flex; gap: 6px; flex-wrap: wrap; }
+.job .track-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.job .track-label.track-ai { color: var(--track-ai-700); }
+.job .track-label.track-corp { color: var(--track-corp-700); }
+.job .tags { margin-top: var(--space-2); display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 
 .badge {
   display: inline-flex; align-items: center; height: 22px;
@@ -130,8 +231,37 @@ h2.section {
   font-family: var(--font-heading);
   background: var(--color-neutral-200); color: var(--color-neutral-500);
 }
-.score.hi { color: var(--color-accent-700); background: var(--color-accent-100); }
-.score.mid { color: var(--color-accent-2-700); background: var(--color-accent-2-100); }
+.score.hi { color: var(--score-hi); background: var(--score-hi-bg); }
+.score.mid { color: var(--score-mid); background: var(--score-mid-bg); }
+
+/* RowActions buttons - distinct colors per action, not identical gray */
+.actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.btn-ghost {
+  font-family: var(--font-body); cursor: pointer;
+  border-radius: var(--radius-sm); padding: 7px 12px; font-size: 12px;
+  background: transparent; border: 1px solid var(--color-neutral-300); color: var(--color-neutral-700);
+  min-height: 32px; white-space: nowrap;
+}
+.btn-ghost:hover { background: var(--color-neutral-100); }
+.btn-ghost.watch { color: var(--action-watch); border-color: var(--action-watch-border); background: var(--action-watch-bg); font-weight: 600; }
+.btn-ghost.watch:hover { background: #fbe6bd; }
+.btn-ghost.mute { color: var(--action-mute); border-color: var(--action-mute-border); }
+.btn-ghost.mute:hover { background: var(--color-accent-2-100); }
+.btn-ghost.save { color: var(--color-accent-700); border-color: var(--color-accent-300); font-weight: 600; }
+.btn-ghost.save:hover { background: var(--color-accent-100); }
+.badge.saved { background: var(--color-accent-100); color: var(--color-accent-700); font-weight: 600; }
+
+/* Reasoning disclosure - native <details>, no JS needed */
+.reasoning { margin-top: 8px; }
+.reasoning summary {
+  cursor: pointer; font-size: 13px; font-weight: 600; color: var(--color-accent-700);
+  list-style: none; display: inline-flex; align-items: center; gap: 4px;
+}
+.reasoning summary::-webkit-details-marker { display: none; }
+.reasoning summary::after { content: '\25be'; font-size: 10px; transition: transform 0.15s; }
+.reasoning[open] summary::after { transform: rotate(-180deg); }
+.reasoning .text { margin-top: 8px; font-size: 13px; color: var(--color-neutral-600); }
+.reasoning .text strong { color: var(--color-text); }
 
 .ql { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--space-2); }
 .ql-card {
@@ -146,7 +276,26 @@ h2.section {
 .ql-card .note { color: var(--color-neutral-600); font-size: 12px; margin-bottom: var(--space-2); line-height: 1.4; }
 .ql-card a { display: block; font-size: 13px; padding: 3px 0; }
 
-table.health { width: 100%; border-collapse: collapse; font-size: 13px; }
+.search-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 20px 0 32px; }
+.search-input {
+  font-family: var(--font-body); font-size: 15px; padding: 9px 14px;
+  border: 1px solid var(--color-neutral-300); border-radius: var(--radius-sm);
+  background: var(--color-surface); color: var(--color-text);
+  width: 100%; max-width: 420px; flex: 1 1 260px;
+}
+.search-input:focus { outline: 2px solid var(--color-accent-300); outline-offset: 1px; }
+.search-form .btn { height: 38px; padding: 0 16px; }
+
+.rule-row {
+  background: var(--color-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm);
+  padding: var(--space-3) var(--space-4); margin-bottom: var(--space-2);
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap;
+}
+.badge.watch-label { background: var(--action-watch-bg); color: var(--action-watch); font-weight: 600; }
+.badge.mute-label { background: var(--color-accent-2-100); color: var(--action-mute); font-weight: 600; }
+
+.table-scroll { overflow-x: auto; }
+table.health { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 480px; }
 table.health th, table.health td {
   text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--color-divider);
 }
@@ -154,9 +303,14 @@ table.health th {
   color: var(--color-neutral-600); font-weight: 600; font-size: 11px;
   text-transform: uppercase; letter-spacing: 0.06em;
 }
-.s-PASS { color: var(--color-accent-700); font-weight: 600; }
-.s-EMPTY { color: var(--color-neutral-500); }
-.s-FAIL { color: var(--color-accent-2-700); font-weight: 600; }
+.status-pill { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 12px; }
+.status-pill .dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 7px; }
+.status-pill.s-PASS { color: var(--score-hi); }
+.status-pill.s-PASS .dot { background: var(--score-hi); }
+.status-pill.s-EMPTY { color: var(--color-neutral-500); }
+.status-pill.s-EMPTY .dot { background: var(--color-neutral-400); }
+.status-pill.s-FAIL { color: var(--color-accent-2-700); }
+.status-pill.s-FAIL .dot { background: var(--color-accent-2); }
 
 .empty {
   border: 1px dashed var(--color-neutral-300); border-radius: var(--radius-md);
@@ -168,3 +322,30 @@ table.health th {
 }
 
 ::-webkit-scrollbar { display: none; }
+
+/* Mobile */
+@media (max-width: 640px) {
+  .wrap { padding: var(--space-4) var(--space-3) 60px; }
+  header.top { flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+  header.top h1 { font-size: 26px; }
+  header.top > div { margin-left: 0 !important; width: 100%; }
+  header.top form { flex: 1; }
+  header.top button { width: 100%; }
+
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .stat .n { font-size: 22px; }
+
+  .job { padding: var(--space-3); gap: var(--space-2); }
+  .job .title { font-size: 15px; }
+  .score { width: 34px; height: 34px; flex-basis: 34px; font-size: 13px; }
+
+  .actions { gap: 6px; }
+  .btn-ghost { flex: 1 1 auto; text-align: center; padding: 9px 10px; }
+
+  .badge { height: 26px; font-size: 12px; }
+
+  .table-scroll {
+    mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
+    -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
+  }
+}
