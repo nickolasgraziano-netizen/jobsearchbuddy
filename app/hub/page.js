@@ -20,7 +20,7 @@ const DAY = 864e5;
 function exactTime(ts) {
   if (!ts) return '';
   return new Intl.DateTimeFormat('en-US', {
-    timeZone: 'America/Denver', month: 'short', day: 'numeric',
+    timeZone: 'America/Chicago', month: 'short', day: 'numeric',
     hour: 'numeric', minute: '2-digit',
   }).format(new Date(ts));
 }
