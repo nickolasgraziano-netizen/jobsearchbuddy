@@ -157,6 +157,10 @@ header.top h1 {
 }
 header.top .sub { color: var(--color-neutral-600); font-size: 13px; }
 
+.brand { display: flex; align-items: center; gap: var(--space-2); }
+.logo-mark { display: inline-flex; flex: none; }
+.logo-mark svg { display: block; }
+
 .btn {
   font-family: var(--font-body); font-weight: 600; cursor: pointer;
   border-radius: var(--radius-sm); border: 1px solid transparent;
