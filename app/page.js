@@ -1,10 +1,14 @@
 import './globals.css';
+import Logo from './Logo';
 
 export default function Home() {
   return (
     <div className="wrap">
       <header className="top">
-        <h1>Job Hub</h1>
+        <div className="brand">
+          <Logo />
+          <h1>Job Hub</h1>
+        </div>
         <span className="sub">Northern Colorado</span>
       </header>
 

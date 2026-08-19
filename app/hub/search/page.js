@@ -4,6 +4,7 @@ import { restoreJob, removeRule, unsaveJob } from '../actions.js';
 import { ago, JobRow } from '../JobCard.jsx';
 import { computeMultiCompanies } from '../multiCompanies.mjs';
 import ThemeToggle from '../ThemeToggle.jsx';
+import Logo from '../../Logo';
 
 export const dynamic = 'force-dynamic';
 
@@ -85,7 +86,10 @@ export default async function SearchAndManage({ searchParams }) {
   return (
     <div className="wrap">
       <header className="top">
-        <h1>Search &amp; manage</h1>
+        <div className="brand">
+          <Logo />
+          <h1>Search &amp; manage</h1>
+        </div>
         <span className="sub"><a href="/hub">← Back to Job Hub</a></span>
         <div style={{ marginLeft: 'auto' }}>
           <ThemeToggle />

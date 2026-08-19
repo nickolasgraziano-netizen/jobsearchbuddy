@@ -8,6 +8,7 @@ import { ago, money, RowActions, JobRow, CompanyName } from './JobCard.jsx';
 import { computeMultiCompanies } from './multiCompanies.mjs';
 import RefreshButton from './RefreshButton.jsx';
 import ThemeToggle from './ThemeToggle.jsx';
+import Logo from '../Logo';
 
 export const dynamic = 'force-dynamic';
 
@@ -199,7 +200,10 @@ export default async function Hub({ searchParams }) {
   return (
     <div className="wrap">
       <header className="top">
-        <h1>Job Hub</h1>
+        <div className="brand">
+          <Logo />
+          <h1>Job Hub</h1>
+        </div>
         <span className="sub">
           80524 · {lastRun ? `last refreshed ${exactTime(lastRun)}` : 'never run'}
         </span>
