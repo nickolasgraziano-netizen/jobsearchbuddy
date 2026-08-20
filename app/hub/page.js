@@ -53,6 +53,7 @@ function MatchRow({ s, saved, multiCompanies }) {
           <CompanyName company={j.company} multiCompanies={multiCompanies} />
           {j.location_text ? ` · ${j.location_text}` : ''}
           {miles != null ? ` · ~${miles} mi` : ''}
+          {j.source?.label ? ` · via ${j.source.label}` : ''}
         </div>
         <div className="tags">
           {saved && <span className="badge saved">★ Saved</span>}
@@ -114,7 +115,7 @@ export default async function Hub({ searchParams }) {
   const [{ data: dismissedRows }, { data: rulesData }, { data: savedRows }] = await Promise.all([
     db.from('dismissed_jobs').select('job_id'),
     db.from('rules').select('*'),
-    db.from('saved_jobs').select('job_id, saved_at, job:jobs(*)').order('saved_at', { ascending: false }),
+    db.from('saved_jobs').select('job_id, saved_at, job:jobs(*, source:sources(label))').order('saved_at', { ascending: false }),
   ]);
   const dismissedIds = new Set((dismissedRows || []).map(r => r.job_id));
   const saved = (savedRows || []).filter(r => r.job);
@@ -129,18 +130,18 @@ export default async function Hub({ searchParams }) {
   const excludeDismissed = (q, col) => dismissedArr.length ? q.not(col, 'in', `(${dismissedArr.join(',')})`) : q;
 
   const [{ data: fresh }, { data: recent }, { data: sourcesData }, totals, { data: scored }, watchResult] = await Promise.all([
-    excludeDismissed(db.from('jobs').select('*').eq('is_active', true).gt('first_seen_at', since), 'id')
+    excludeDismissed(db.from('jobs').select('*, source:sources(label)').eq('is_active', true).gt('first_seen_at', since), 'id')
       .order('first_seen_at', { ascending: false }).limit(120),
-    excludeDismissed(db.from('jobs').select('*').eq('is_active', true).lte('first_seen_at', since), 'id')
+    excludeDismissed(db.from('jobs').select('*, source:sources(label)').eq('is_active', true).lte('first_seen_at', since), 'id')
       .order('first_seen_at', { ascending: false }).limit(70),
     db.from('sources').select('*').order('tier').order('label'),
     db.from('jobs').select('id', { count: 'exact', head: true }).eq('is_active', true),
     excludeDismissed(
-      db.from('scores').select('score, matched_keywords, missing_keywords, reasoning, suggested_tweak, scoring_method, resume:resumes(label), job:jobs(*)'),
+      db.from('scores').select('score, matched_keywords, missing_keywords, reasoning, suggested_tweak, scoring_method, resume:resumes(label), job:jobs(*, source:sources(label))'),
       'job_id'
     ).gte('score', 40).order('score', { ascending: false }).limit(150),
     watchOr
-      ? excludeDismissed(db.from('jobs').select('*').eq('is_active', true), 'id').or(watchOr).order('first_seen_at', { ascending: false }).limit(20)
+      ? excludeDismissed(db.from('jobs').select('*, source:sources(label)').eq('is_active', true), 'id').or(watchOr).order('first_seen_at', { ascending: false }).limit(20)
       : Promise.resolve({ data: [] }),
   ]);
 
@@ -174,7 +175,7 @@ export default async function Hub({ searchParams }) {
   const sinceRefreshCutoff = lastRun ? new Date(new Date(lastRun).getTime() - 10 * 60e3).toISOString() : null;
   const [{ data: sinceRefreshRows }, { data: allCompanyRows }] = await Promise.all([
     sinceRefreshCutoff
-      ? db.from('jobs').select('*').eq('is_active', true).gte('first_seen_at', sinceRefreshCutoff)
+      ? db.from('jobs').select('*, source:sources(label)').eq('is_active', true).gte('first_seen_at', sinceRefreshCutoff)
           .order('first_seen_at', { ascending: false })
       : Promise.resolve({ data: [] }),
     db.from('jobs').select('company').eq('is_active', true),

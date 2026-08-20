@@ -63,14 +63,14 @@ export default async function SearchAndManage({ searchParams }) {
 
   const [{ data: rulesData }, dismissedResult, searchResult, { data: savedRows }, { data: allCompanyRows }] = await Promise.all([
     db.from('rules').select('*').order('created_at', { ascending: false }),
-    db.from('dismissed_jobs').select('job_id, dismissed_at, job:jobs(*)')
+    db.from('dismissed_jobs').select('job_id, dismissed_at, job:jobs(*, source:sources(label))')
       .order('dismissed_at', { ascending: false }).limit(100),
     safeQ
-      ? db.from('jobs').select('*').eq('is_active', true)
+      ? db.from('jobs').select('*, source:sources(label)').eq('is_active', true)
           .or(`title.ilike.%${safeQ}%,company.ilike.%${safeQ}%,location_text.ilike.%${safeQ}%`)
           .order('first_seen_at', { ascending: false }).limit(50)
       : Promise.resolve({ data: null }),
-    db.from('saved_jobs').select('job_id, saved_at, job:jobs(*)').order('saved_at', { ascending: false }),
+    db.from('saved_jobs').select('job_id, saved_at, job:jobs(*, source:sources(label))').order('saved_at', { ascending: false }),
     db.from('jobs').select('company').eq('is_active', true),
   ]);
 

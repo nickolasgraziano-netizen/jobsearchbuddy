@@ -65,6 +65,7 @@ export function JobRow({ j, isNew, watched, saved, actions, multiCompanies }) {
           <CompanyName company={j.company} multiCompanies={multiCompanies} />
           {j.location_text ? ` · ${j.location_text}` : ''}
           {miles != null ? ` · ~${miles} mi` : ''}
+          {j.source?.label ? ` · via ${j.source.label}` : ''}
           {` · ${ago(j.first_seen_at)}`}
         </div>
         <div className="tags">
