@@ -22,6 +22,13 @@ export async function dismissJob(formData) {
   revalidateBoth();
 }
 
+export async function dismissJobs(jobIds) {
+  const ids = [...new Set((jobIds || []).filter(Boolean))];
+  if (!ids.length) return;
+  await admin().from('dismissed_jobs').upsert(ids.map(job_id => ({ job_id })), { onConflict: 'job_id' });
+  revalidateBoth();
+}
+
 export async function restoreJob(formData) {
   const jobId = formData.get('jobId');
   await admin().from('dismissed_jobs').delete().eq('job_id', jobId);

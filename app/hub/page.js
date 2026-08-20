@@ -6,6 +6,7 @@ import { TARGET_TOWNS, SALARY_FLOORS, matchesLocation, matchesSalaryFloor, isMut
 import { refreshJobs, unsaveJob } from './actions.js';
 import { ago, money, RowActions, JobRow, CompanyName } from './JobCard.jsx';
 import { computeMultiCompanies } from './multiCompanies.mjs';
+import { SelectModeProvider, SelectModeToggle, SelectModeBar, SelectCheckbox } from './SelectMode.jsx';
 import RefreshButton from './RefreshButton.jsx';
 import ThemeToggle from './ThemeToggle.jsx';
 import Logo from '../Logo';
@@ -43,6 +44,7 @@ function MatchRow({ s, saved, multiCompanies }) {
   const trackClass = TRACK_CLASS[s.resume?.label] || '';
   return (
     <div className={`job ${trackClass}`}>
+      <SelectCheckbox jobId={j.id} />
       <div className={`score ${s.score >= 70 ? 'hi' : s.score >= 50 ? 'mid' : ''}`}>{s.score}</div>
       <div className="body">
         {trackClass && <div className={`track-label ${trackClass}`}>{s.resume.label}</div>}
@@ -198,6 +200,7 @@ export default async function Hub({ searchParams }) {
   const trackNames = Object.keys(byTrack).sort();
 
   return (
+    <SelectModeProvider>
     <div className="wrap">
       <header className="top">
         <div className="brand">
@@ -209,11 +212,13 @@ export default async function Hub({ searchParams }) {
         </span>
         <div style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
           <ThemeToggle />
+          <SelectModeToggle />
           <form action={refreshJobs}>
             <RefreshButton />
           </form>
         </div>
       </header>
+      <SelectModeBar />
       <div className="byline">
         {srcs.filter(s => s.enabled).length} live source adapters · deduped by fingerprint · scored twice — a free keyword pass, then Claude — refreshed on demand
         {' · '}<a href="/hub/search">Search all jobs, saved, muted &amp; dismissed →</a>
@@ -360,5 +365,6 @@ export default async function Hub({ searchParams }) {
         </table>
       </div>
     </div>
+    </SelectModeProvider>
   );
 }

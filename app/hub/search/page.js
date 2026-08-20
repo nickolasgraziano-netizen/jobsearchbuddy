@@ -3,6 +3,7 @@ import { serverClient } from '../../../lib/supabase';
 import { restoreJob, removeRule, unsaveJob } from '../actions.js';
 import { ago, JobRow } from '../JobCard.jsx';
 import { computeMultiCompanies } from '../multiCompanies.mjs';
+import { SelectModeProvider, SelectModeToggle, SelectModeBar } from '../SelectMode.jsx';
 import ThemeToggle from '../ThemeToggle.jsx';
 import Logo from '../../Logo';
 
@@ -84,6 +85,7 @@ export default async function SearchAndManage({ searchParams }) {
   const multiCompanies = computeMultiCompanies(allCompanyRows);
 
   return (
+    <SelectModeProvider>
     <div className="wrap">
       <header className="top">
         <div className="brand">
@@ -91,10 +93,12 @@ export default async function SearchAndManage({ searchParams }) {
           <h1>Search &amp; manage</h1>
         </div>
         <span className="sub"><a href="/hub">← Back to Job Hub</a></span>
-        <div style={{ marginLeft: 'auto' }}>
+        <div style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
           <ThemeToggle />
+          <SelectModeToggle />
         </div>
       </header>
+      <SelectModeBar />
 
       <form method="GET" className="search-form">
         <input
@@ -133,5 +137,6 @@ export default async function SearchAndManage({ searchParams }) {
         <div className="empty">Nothing dismissed yet.</div>
       ) : dismissed.map(d => <JobRow key={d.job_id} j={d.job} actions={<RestoreAction job={d.job} />} multiCompanies={multiCompanies} />)}
     </div>
+    </SelectModeProvider>
   );
 }
