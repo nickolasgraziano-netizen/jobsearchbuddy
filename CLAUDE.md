@@ -540,6 +540,61 @@ Server Action's file) to fix anything real.
   cleared before shipping so the first real use of the feature doesn't open
   on a list of jobs he never actually saved.
 
+- **8 more direct-employer sources seeded, 2026-08-20** — this session's
+  outbound network access is restricted to an allowlist (GitHub, npm, the
+  Anthropic API); `fetch`/`curl`/`WebFetch` to arbitrary hosts like
+  `boards-api.greenhouse.io` all came back `EGRESS_BLOCKED`, the same
+  no-network situation Phase 1 was originally authored under. So these were
+  identified via `WebSearch` (which does work — routed differently) rather
+  than a live Network-tab check, then seeded straight into the `sources`
+  table on the real `xkfuoqhvfkjyausukscx` project via the Supabase MCP
+  tools (`supabase/migrations/0002_more_sources.sql`) since that tool talks
+  to Supabase's API directly, not through this session's blocked egress.
+  All `workday`, all `locationTerm: "Colorado"`, tenant+site taken from an
+  exact slug seen in a real job URL or login-page link (not just "they use
+  Workday" prose) to keep the guess quality in line with this file's own
+  wd5/wd504-dead and Costco-isn't-Workday history: **Woodward** (Fort
+  Collins HQ — `woodward.wd5.myworkdayjobs.com/woodward`), **Banner
+  Health** (`bannerhealth.wd5.myworkdayjobs.com/Careers` — a second tenant
+  `wd108` also showed up in search results and wasn't seeded; if `wd5`
+  comes back FAIL, that's the one to try), **Target**
+  (`target.wd5.myworkdayjobs.com/targetcareers` — this one was already a
+  probe-only entry in `scripts/probe-sources.mjs`, never actually a seeded
+  source until now), **Home Depot**
+  (`homedepot.wd5.myworkdayjobs.com/CareerDepot`), **Lowe's**
+  (`lowes.wd5.myworkdayjobs.com/LWS_External_CS`), **Sysco**
+  (`sysco.wd5.myworkdayjobs.com/syscocareers`), **US Foods**
+  (`usfoods.wd1.myworkdayjobs.com/usfoodscareersExternal`), **FedEx**
+  (`fedex.wd1.myworkdayjobs.com/FXE-US_External_Career_Site` — FedEx runs
+  several regional Workday sites off the same `wd1` tenant, e.g.
+  `FXE_APAC_External`; this is specifically the US one). Companies
+  researched but deliberately *not* seeded, and why, are listed under
+  "Adding a source" below.
+  **None of this is verified against live data yet** — added to the seed
+  table, not proven to return real jobs. Correct behavior either way: a
+  wrong guess shows up as `FAIL` on the source-health table without
+  affecting any other source (per the "a broken adapter must never wipe the
+  board" design), it doesn't silently corrupt anything. The real
+  confirmation is the next scheduled ingest (daily cron, 09:45 UTC) or a
+  manual "Refresh now" click — check source health after either and fix any
+  `FAIL` the same way past ones were fixed (open the real careers page,
+  watch the Network tab for the `/wday/cxs/.../jobs` POST, copy the real
+  tenant/site). Also added matching probes to `scripts/probe-sources.mjs`
+  for a faster check than a full ingest.
+  **Also found and fixed a real, pre-existing bug while in the sources
+  table**: `gov-fortcollins` still pointed at the `govjobs_rss` adapter,
+  which was fully removed from the `ADAPTERS` registry back on 2026-08-17
+  when NeoGov's RSS retirement was confirmed (replaced by the `govjobs`
+  organization-search adapter for the sources that could move to it). That
+  rename was never applied to this one row, so every ingest since then threw
+  `unknown adapter: govjobs_rss` for it — caught by `Promise.allSettled` into
+  a silent per-source `FAIL` rather than surfacing anywhere. Not repointed at
+  `govjobs`: this file already established Fort Collins isn't on
+  governmentjobs.com at all (Cornerstone OnDemand, auth-walled, covered via
+  the `quicklaunch.js` deep link instead). Disabled via
+  `0003_disable_stale_govjobs_rss.sql` (`enabled = false`, matching how the
+  dead wd5 Walmart row was handled) rather than deleted.
+
 ### Not done
 - ~~Migration has not been applied~~ — **done 2026-08-17**, against the
   corrected project (`xkfuoqhvfkjyausukscx`). The earlier password failure
@@ -693,15 +748,23 @@ insert into sources (slug, label, adapter, tier, config) values
 ```
 
 Adapters: `workday` (needs `host`, `tenant`, `site`, optional `searchText` /
-`locationTerm`), `greenhouse` / `lever` / `ashby` / `smartrecruiters` (need
-`company`), `govjobs_rss` (needs `agency`), `careeronestop`, `jsearch`,
-`usajobs`, `adzuna`, `remotive`.
+`locationTerm`), `jibe` (needs `domain`, optional `location`), `schoolspring`
+(needs `refererUrl`, `employerLabel`), `greenhouse` / `lever` / `ashby` /
+`smartrecruiters` (need `company`), `govjobs` (needs `organization`, optional
+`location`), `careeronestop`, `jsearch`, `usajobs`, `adzuna`, `remotive`.
+(`govjobs_rss` in the list this replaced is dead — the adapter itself was
+removed 2026-08-17 when NeoGov's RSS feeds were confirmed retired; don't seed
+a new row with it. `gov-fortcollins` still had the stale value until
+2026-08-20 and was silently `FAIL`ing every run — see below.)
 
-Worth seeding once the basics work — Northern Colorado: UCHealth, CSU, Banner
-Health, Otter Products, Woodward, Advanced Energy, Broadcom Fort Collins, Water
-Pik, Hach, Madwire, Vestas. Retail/logistics peers: Target, Kroger/King
-Soopers, Safeway/Albertsons, Amazon, UPS, FedEx, Home Depot, Lowe's, Sysco, US
-Foods, McLane.
+Still worth seeding: Otter Products (iCIMS — `careers-otterproducts.icims.com`,
+no adapter written for that platform yet), Advanced Energy, Water Pik/Church &
+Dwight, Hach/Veralto, Madwire (on Workable — `apply.workable.com/madwire-1`,
+also no adapter yet), Vestas (multiple regional Workday tenants, none
+confirmed US-specific), Kroger/King Soopers (Oracle Cloud HCM, not Workday),
+Safeway/Albertsons (ATS unconfirmed), Amazon (no public jobs API — same
+category as the Tier 3 sites, not worth scraping), UPS (Taleo), Broadcom
+(ATS unconfirmed), McLane (not investigated).
 
 ---
 

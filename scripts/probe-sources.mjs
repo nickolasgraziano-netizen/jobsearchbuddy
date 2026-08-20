@@ -296,7 +296,22 @@ async function govjobs(label, organization, location = 'Colorado') {
   log('\n\x1b[1m── Tier 1: Northern Colorado employers ───────────────────────\x1b[0m');
   await workday('UCHealth', 'uchealth.wd1.myworkdayjobs.com', 'UCHealth', '', 'Fort Collins');
   await workday('Colorado State University', 'csusystem.wd12.myworkdayjobs.com', 'fortcollins_careers', '', '');
+  await workday('Woodward (Fort Collins HQ)', 'woodward.wd5.myworkdayjobs.com', 'woodward', '', 'Colorado');
+  await workday('Banner Health', 'bannerhealth.wd5.myworkdayjobs.com', 'Careers', '', 'Colorado');
+
+  log('\n\x1b[1m── Tier 1: Retail / logistics peers, added 2026-08-20 ────────\x1b[0m');
+  // Tenant + site guessed from web search (job URLs / login-page slugs), not
+  // a live Network-tab check — this environment had no outbound access to
+  // arbitrary hosts. Run this probe for real before trusting these; a FAIL
+  // means the guess was wrong (see the wd5/wd504 and Costco/Jibe stories in
+  // CLAUDE.md for what that's looked like before), not that the source
+  // itself is dead.
   await workday('Target', 'target.wd5.myworkdayjobs.com', 'targetcareers', '', 'Colorado');
+  await workday('Home Depot', 'homedepot.wd5.myworkdayjobs.com', 'CareerDepot', '', 'Colorado');
+  await workday('Lowe\'s', 'lowes.wd5.myworkdayjobs.com', 'LWS_External_CS', '', 'Colorado');
+  await workday('Sysco', 'sysco.wd5.myworkdayjobs.com', 'syscocareers', '', 'Colorado');
+  await workday('US Foods', 'usfoods.wd1.myworkdayjobs.com', 'usfoodscareersExternal', '', 'Colorado');
+  await workday('FedEx', 'fedex.wd1.myworkdayjobs.com', 'FXE-US_External_Career_Site', '', 'Colorado');
 
   log('\n\x1b[1m── Tier 2: Aggregators ───────────────────────────────────────\x1b[0m');
   await careeronestop();   // best free source for hourly/warehouse
