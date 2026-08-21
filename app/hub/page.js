@@ -6,7 +6,7 @@ import { TARGET_TOWNS, SALARY_FLOORS, matchesLocation, matchesSalaryFloor, isMut
 import { refreshJobs, unsaveJob } from './actions.js';
 import { ago, money, RowActions, JobRow, CompanyName } from './JobCard.jsx';
 import { computeMultiCompanies } from './multiCompanies.mjs';
-import { SelectModeProvider, SelectModeToggle, SelectModeBar, SelectCheckbox } from './SelectMode.jsx';
+import { SelectModeProvider, SelectModeToggle, SelectModeBar, SelectCheckbox, LongPressTarget } from './SelectMode.jsx';
 import RefreshButton from './RefreshButton.jsx';
 import ThemeToggle from './ThemeToggle.jsx';
 import Logo from '../Logo';
@@ -43,7 +43,7 @@ function MatchRow({ s, saved, multiCompanies }) {
   const pay = money(j.salary_min, j.salary_max, j.salary_text);
   const trackClass = TRACK_CLASS[s.resume?.label] || '';
   return (
-    <div className={`job ${trackClass}`}>
+    <LongPressTarget jobId={j.id} className={`job ${trackClass}`}>
       <SelectCheckbox jobId={j.id} />
       <div className={`score ${s.score >= 70 ? 'hi' : s.score >= 50 ? 'mid' : ''}`}>{s.score}</div>
       <div className="body">
@@ -79,7 +79,7 @@ function MatchRow({ s, saved, multiCompanies }) {
         )}
         <RowActions job={j} />
       </div>
-    </div>
+    </LongPressTarget>
   );
 }
 

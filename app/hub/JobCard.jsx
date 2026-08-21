@@ -1,6 +1,6 @@
 import { roughMilesFromHome } from '../../lib/normalize.mjs';
 import { dismissJob, muteCompany, watchCompany, saveJob } from './actions.js';
-import { SelectCheckbox } from './SelectMode.jsx';
+import { SelectCheckbox, LongPressTarget } from './SelectMode.jsx';
 
 export function ago(ts) {
   if (!ts) return '';
@@ -56,7 +56,7 @@ export function JobRow({ j, isNew, watched, saved, actions, multiCompanies }) {
   const miles = roughMilesFromHome(j.city);
   const pay = money(j.salary_min, j.salary_max, j.salary_text);
   return (
-    <div className="job">
+    <LongPressTarget jobId={j.id} className="job">
       <SelectCheckbox jobId={j.id} />
       <div className="score">{watched ? '🎯' : '—'}</div>
       <div className="body">
@@ -80,6 +80,6 @@ export function JobRow({ j, isNew, watched, saved, actions, multiCompanies }) {
         </div>
         {actions ?? <RowActions job={j} />}
       </div>
-    </div>
+    </LongPressTarget>
   );
 }

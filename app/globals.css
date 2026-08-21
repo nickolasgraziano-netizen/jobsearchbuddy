@@ -205,6 +205,7 @@ h2.section {
   padding: var(--space-3) var(--space-4); margin-bottom: var(--space-2);
   display: flex; gap: var(--space-3); align-items: flex-start;
   border-left: 4px solid transparent;
+  -webkit-touch-callout: none; /* long-press shouldn't pop iOS's copy/save menu */
 }
 .job.track-ai { border-left-color: var(--track-ai); }
 .job.track-corp { border-left-color: var(--track-corp); }

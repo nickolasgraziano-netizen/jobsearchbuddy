@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useTransition } from 'react';
+import { createContext, useContext, useState, useTransition, useRef } from 'react';
 import { dismissJobs } from './actions.js';
 
 const SelectModeContext = createContext(null);
@@ -25,6 +25,14 @@ export function SelectModeProvider({ children }) {
     });
   }
 
+  // Long-press entry point (LongPressTarget below) - always adds rather than
+  // toggling, so pressing the same card again while already in select mode
+  // can't accidentally deselect it.
+  function selectViaLongPress(id) {
+    setActive(true);
+    setSelected(prev => new Set(prev).add(id));
+  }
+
   function dismissSelected() {
     if (!selected.size) return;
     const n = selected.size;
@@ -38,7 +46,7 @@ export function SelectModeProvider({ children }) {
   }
 
   return (
-    <SelectModeContext.Provider value={{ active, selected, toggle, toggleId, dismissSelected, isPending }}>
+    <SelectModeContext.Provider value={{ active, selected, toggle, toggleId, selectViaLongPress, dismissSelected, isPending }}>
       {children}
     </SelectModeContext.Provider>
   );
@@ -68,6 +76,77 @@ export function SelectModeBar() {
       <button type="button" className="btn-ghost mute" onClick={ctx.dismissSelected} disabled={ctx.isPending}>
         {ctx.isPending ? 'Dismissing…' : `Not for me (${ctx.selected.size})`}
       </button>
+    </div>
+  );
+}
+
+const LONG_PRESS_MS = 500;
+const MOVE_TOLERANCE_PX = 10;
+
+/** Wraps a job card so pressing and holding it (touch only - mouse/desktop
+    is untouched, since these are touch-only events) enters select mode with
+    that card already checked. Cancels on scroll/drag (finger moves past
+    MOVE_TOLERANCE_PX) so it doesn't fire on every scroll gesture that
+    happens to start on a card, and suppresses the phone's native
+    text-selection/callout menu and the synthetic click that would otherwise
+    follow the long-press and open the job link underneath. */
+export function LongPressTarget({ jobId, className, children }) {
+  const ctx = useSelectMode();
+  const timerRef = useRef(null);
+  const startRef = useRef({ x: 0, y: 0 });
+  const firedRef = useRef(false);
+  const touchingRef = useRef(false);
+
+  function clearTimer() {
+    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
+  }
+
+  function onTouchStart(e) {
+    touchingRef.current = true;
+    if (!ctx || ctx.active) return; // already in select mode - the checkbox handles taps
+    firedRef.current = false;
+    const t = e.touches[0];
+    startRef.current = { x: t.clientX, y: t.clientY };
+    timerRef.current = setTimeout(() => {
+      timerRef.current = null;
+      firedRef.current = true;
+      ctx.selectViaLongPress(jobId);
+      if (navigator.vibrate) navigator.vibrate(15);
+    }, LONG_PRESS_MS);
+  }
+
+  function onTouchMove(e) {
+    if (!timerRef.current) return;
+    const t = e.touches[0];
+    if (Math.abs(t.clientX - startRef.current.x) > MOVE_TOLERANCE_PX ||
+        Math.abs(t.clientY - startRef.current.y) > MOVE_TOLERANCE_PX) {
+      clearTimer();
+    }
+  }
+
+  function onTouchEnd(e) {
+    touchingRef.current = false;
+    clearTimer();
+    if (firedRef.current) {
+      e.preventDefault(); // swallow the click the browser would otherwise fire on release
+      firedRef.current = false;
+    }
+  }
+
+  function onContextMenu(e) {
+    if (touchingRef.current) e.preventDefault(); // suppress iOS/Android's own long-press menu
+  }
+
+  return (
+    <div
+      className={className}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+      onTouchCancel={onTouchEnd}
+      onContextMenu={onContextMenu}
+    >
+      {children}
     </div>
   );
 }
