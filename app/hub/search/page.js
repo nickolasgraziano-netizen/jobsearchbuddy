@@ -38,6 +38,20 @@ function UnsaveAction({ job }) {
   );
 }
 
+function SectionNav({ items }) {
+  const visible = items.filter(i => i.show);
+  if (!visible.length) return null;
+  return (
+    <nav className="section-nav" aria-label="Jump to section">
+      {visible.map(i => (
+        <a key={i.id} href={`#${i.id}`} className="section-nav-chip">
+          {i.label}{i.count != null ? ` (${i.count})` : ''}
+        </a>
+      ))}
+    </nav>
+  );
+}
+
 function RuleRow({ rule }) {
   const isWatch = rule.kind.startsWith('boost');
   return (
@@ -84,6 +98,13 @@ export default async function SearchAndManage({ searchParams }) {
   const savedIds = new Set(saved.map(r => r.job_id));
   const multiCompanies = computeMultiCompanies(allCompanyRows);
 
+  const navItems = [
+    { id: 'search-results', label: `Results for "${q}"`, count: results?.length, show: !!q },
+    { id: 'saved', label: '★ Saved', count: saved.length, show: true },
+    { id: 'muted-watched', label: 'Muted & watched', count: rules.length, show: true },
+    { id: 'dismissed', label: 'Dismissed', count: dismissed.length, show: true },
+  ];
+
   return (
     <SelectModeProvider>
     <div className="wrap">
@@ -98,7 +119,10 @@ export default async function SearchAndManage({ searchParams }) {
           <SelectModeToggle />
         </div>
       </header>
-      <SelectModeBar />
+      <div className="sticky-nav">
+        <SectionNav items={navItems} />
+        <SelectModeBar />
+      </div>
 
       <form method="GET" className="search-form">
         <input
@@ -112,24 +136,24 @@ export default async function SearchAndManage({ searchParams }) {
 
       {q && (
         <>
-          <h2 className="section">Results for &quot;{q}&quot;</h2>
+          <h2 className="section" id="search-results">Results for &quot;{q}&quot;</h2>
           {results.length === 0 ? (
             <div className="empty">No active jobs match &quot;{q}&quot;.</div>
           ) : results.map(j => <JobRow key={j.id} j={j} saved={savedIds.has(j.id)} multiCompanies={multiCompanies} />)}
         </>
       )}
 
-      <h2 className="section">★ Saved for later</h2>
+      <h2 className="section" id="saved">★ Saved for later</h2>
       {saved.length === 0 ? (
         <div className="empty">Nothing saved yet — click "Save for later" on any job.</div>
       ) : saved.map(r => <JobRow key={r.job_id} j={r.job} actions={<UnsaveAction job={r.job} />} multiCompanies={multiCompanies} />)}
 
-      <h2 className="section">Muted &amp; watched</h2>
+      <h2 className="section" id="muted-watched">Muted &amp; watched</h2>
       {rules.length === 0 ? (
         <div className="empty">Nothing muted or watched yet.</div>
       ) : rules.map(r => <RuleRow key={r.id} rule={r} />)}
 
-      <h2 className="section">Recently dismissed</h2>
+      <h2 className="section" id="dismissed">Recently dismissed</h2>
       <p style={{ color: 'var(--color-neutral-600)', fontSize: 13, margin: '-6px 0 12px' }}>
         Last 100 — restore any of these to see them again on the main board.
       </p>

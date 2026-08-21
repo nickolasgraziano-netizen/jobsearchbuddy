@@ -93,6 +93,22 @@ function FitBucket({ title, items, savedIds, multiCompanies }) {
   );
 }
 
+/** Sticky horizontal chip row - jump to a section without scrolling to find
+    it. Plain anchor links, no client JS needed for the actual jump. */
+function SectionNav({ items }) {
+  const visible = items.filter(i => i.show);
+  if (!visible.length) return null;
+  return (
+    <nav className="section-nav" aria-label="Jump to section">
+      {visible.map(i => (
+        <a key={i.id} href={`#${i.id}`} className="section-nav-chip">
+          {i.label}{i.count != null ? ` (${i.count})` : ''}
+        </a>
+      ))}
+    </nav>
+  );
+}
+
 function UnsaveAction({ job }) {
   return (
     <div className="actions">
@@ -199,6 +215,15 @@ export default async function Hub({ searchParams }) {
   }
   const trackNames = Object.keys(byTrack).sort();
 
+  const navItems = [
+    { id: 'since-refresh', label: '🆕 New refresh', count: sinceRefresh.length, show: sinceRefresh.length > 0 },
+    { id: 'watching', label: '🎯 Watching', count: watching.length, show: watching.length > 0 },
+    { id: 'saved', label: '★ Saved', count: saved.length, show: saved.length > 0 },
+    { id: 'good-fits', label: 'Good fits', count: null, show: true },
+    { id: 'new-today', label: 'New today', count: newJobs.length, show: true },
+    { id: 'still-open', label: 'Still open', count: older.length, show: true },
+  ];
+
   return (
     <SelectModeProvider>
     <div className="wrap">
@@ -218,7 +243,10 @@ export default async function Hub({ searchParams }) {
           </form>
         </div>
       </header>
-      <SelectModeBar />
+      <div className="sticky-nav">
+        <SectionNav items={navItems} />
+        <SelectModeBar />
+      </div>
       <div className="byline">
         {srcs.filter(s => s.enabled).length} live source adapters · deduped by fingerprint · scored twice — a free keyword pass, then Claude — refreshed on demand
         {' · '}<a href="/hub/search">Search all jobs, saved, muted &amp; dismissed →</a>
@@ -280,7 +308,7 @@ export default async function Hub({ searchParams }) {
 
       {watching.length > 0 && (
         <>
-          <h2 className="section">🎯 Watching</h2>
+          <h2 className="section" id="watching">🎯 Watching</h2>
           <p style={{ color: 'var(--color-neutral-600)', fontSize: 13, margin: '-6px 0 12px' }}>
             Every open posting from a company you've flagged, regardless of score.
           </p>
@@ -290,7 +318,7 @@ export default async function Hub({ searchParams }) {
 
       {saved.length > 0 && (
         <>
-          <h2 className="section">★ Saved for later</h2>
+          <h2 className="section" id="saved">★ Saved for later</h2>
           <p style={{ color: 'var(--color-neutral-600)', fontSize: 13, margin: '-6px 0 12px' }}>
             Flagged for a closer look — clicked from anywhere on the board, newest first.
           </p>
@@ -298,7 +326,7 @@ export default async function Hub({ searchParams }) {
         </>
       )}
 
-      <h2 className="section">Good fits for you</h2>
+      <h2 className="section" id="good-fits">Good fits for you</h2>
       <p style={{ color: 'var(--color-neutral-600)', fontSize: 13, margin: '-6px 0 12px' }}>
         Split by resume, then by realistic (60+) vs. a real stretch (40-59) — not one blended list.
       </p>
@@ -312,7 +340,7 @@ export default async function Hub({ searchParams }) {
         </div>
       ))}
 
-      <h2 className="section">New since yesterday</h2>
+      <h2 className="section" id="new-today">New since yesterday</h2>
       {newJobs.length === 0 ? (
         <div className="empty">
           Nothing new under the current filters. If the ingest has never run, hit{' '}
@@ -320,7 +348,7 @@ export default async function Hub({ searchParams }) {
         </div>
       ) : newJobs.map(j => <JobRow key={j.id} j={j} isNew multiCompanies={multiCompanies} />)}
 
-      <h2 className="section">Still open (seen before today)</h2>
+      <h2 className="section" id="still-open">Still open (seen before today)</h2>
       {older.map(j => <JobRow key={j.id} j={j} multiCompanies={multiCompanies} />)}
 
       <h2 className="section">Quick launch — the sites that can&apos;t be automated</h2>

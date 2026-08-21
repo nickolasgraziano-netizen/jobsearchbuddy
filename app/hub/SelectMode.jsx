@@ -137,9 +137,23 @@ export function LongPressTarget({ jobId, className, children }) {
     if (touchingRef.current) e.preventDefault(); // suppress iOS/Android's own long-press menu
   }
 
+  // Once select mode is on, the whole card becomes a select target - tapping
+  // the title link or an action button toggles select instead of opening the
+  // job or submitting that button's form, the same way Gmail/Photos-style
+  // multi-select works. The checkbox already toggles itself via its own
+  // onChange, so bail out here for clicks that landed on it to avoid
+  // toggling twice (once from the checkbox, once from this handler).
+  function onClick(e) {
+    if (!ctx || !ctx.active) return;
+    if (e.target.closest('.select-check')) return;
+    e.preventDefault();
+    ctx.toggleId(jobId);
+  }
+
   return (
     <div
-      className={className}
+      className={ctx?.active ? `${className} select-active` : className}
+      onClick={onClick}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
